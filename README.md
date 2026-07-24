@@ -1,162 +1,197 @@
 # AI3DScanner
-AI3DScanner
 
-AI3DScanner is a desktop application for reconstructing textured 3D models from multiple photographs.
+Professional AI-powered desktop software for generating textured 3D models from multiple photographs.
 
-## Goals
+---
 
-- Import photos
-- Reconstruct a 3D model
-- Preview the model
-- Export OBJ, GLB, and STL
+## Vision
 
-## Planned Tech Stack
+AI3DScanner aims to become a professional photogrammetry and AI-assisted reconstruction application capable of producing high-quality 3D models suitable for engineering, product visualization, AR/VR, game development, and 3D printing.
 
-- Python
-- OpenCV
-- Open3D
+---
+
+## Current Status
+
+🚧 Active Development
+
+Current Version
+
+v0.2.0
+
+---
+
+## Features Roadmap
+
+### Phase 1
+
+- Application Framework
+- Modern Desktop UI
+- Logging System
+- Settings Manager
+
+### Phase 2
+
+- Project Management
+- Image Import
+- Image Validation
+- Thumbnail Viewer
+
+### Phase 3
+
+- Camera Calibration
+- Feature Detection
+- Image Matching
+
+### Phase 4
+
+- Sparse Point Cloud
+- Dense Point Cloud
+- Mesh Generation
+
+### Phase 5
+
+- Texture Generation
+- Model Optimization
+- 3D Viewer
+
+### Phase 6
+
+- Export
+
+Supported formats
+
+- OBJ
+- STL
+- GLB
+- PLY
+
+### Phase 7
+
+AI Features
+
+- Background Removal
+- Automatic Object Detection
+- Single Image Reconstruction
+- Multi-view AI Reconstruction
+- Gaussian Splatting
+- NeRF
+
+---
+
+## Technology Stack
+
+Language
+
+- Python 3.12
+
+Desktop
+
 - PySide6
+
+Computer Vision
+
+- OpenCV
+
+3D Processing
+
+- Open3D
+
+Photogrammetry
+
 - COLMAP
 - OpenMVS
 
+Utilities
+
+- NumPy
+- Pillow
+
+Version Control
+
+- Git
+- GitHub
+
+---
+
 ## Project Structure
 
-See the `/docs` directory for architecture documentation.
-
-## Status
-
-🚧 Early development (Day 1)
-
-Day 2
-
-We'll build a professional desktop application with this layout
-
-+--------------------------------------------------------------+
-| File  Edit  View  Help                                       |
-+--------------------------------------------------------------+
-| Toolbar                                                      |
-+--------------------------------------------------------------+
-| Projects |              3D Viewport              | Properties |
-|          |                                       |            |
-|----------|---------------------------------------|------------|
-| Console / Logs                                               |
-+--------------------------------------------------------------+
-| Status Bar                                                   |
-+--------------------------------------------------------------+
-
-🎯 Day 2 Goals
-
-By the end of today, we'll have:
-
-✅ Professional PySide6 application
-✅ Main Window
-✅ Menu Bar
-✅ Toolbar
-✅ Status Bar
-✅ Logging System
-✅ Settings Manager
-✅ Clean startup architecture
-
-Step 1 — Update Folder Structure
-
-Your project should now look like:
-
+```
 AI3DScanner/
-│
-├── app/
-│   ├── core/
-│   │   ├── __init__.py
-│   │   ├── application.py
-│   │   ├── constants.py
-│   │   ├── logger.py
-│   │   ├── settings.py
-│   │   └── theme.py
-│   │
-│   ├── ui/
-│   │   ├── __init__.py
-│   │   ├── main_window.py
-│   │   ├── menu_bar.py
-│   │   ├── tool_bar.py
-│   │   ├── status_bar.py
-│   │   ├── dock_manager.py
-│   │   ├── widgets/
-│   │   ├── dialogs/
-│   │   ├── icons/
-│   │   └── styles/
-│   │
-│   ├── reconstruction/
-│   ├── vision/
-│   ├── exporters/
-│   ├── models/
-│   ├── services/
-│   ├── utils/
-│   └── resources/
-│
-├── run.py
-└── ...
 
-Step 2 — Add __init__.py
-
-Inside:
 app/
-app/core/
-app/ui/
+assets/
+config/
+docs/
+examples/
+outputs/
+projects/
+tests/
+tools/
 
-Create:
-\__init__.py
-
-They can stay empty.
-
-This tells Python these are packages.
-
-Step 3 — We'll Build in This Order
+CHANGELOG.md
+README.md
+LICENSE
+requirements.txt
 run.py
-      │
-      ▼
-application.py
-      │
-      ▼
-MainWindow
-      │
- ┌────┼─────┐
- │    │     │
- ▼    ▼     ▼
-Menu Toolbar StatusBar
-Everything starts from run.py
+```
 
-Step 4 — Before We Write Code
-I want to slightly improve our architecture.
+---
 
-Instead of:
-run.py
-calling
-app/main.py
+## Development Principles
 
-I'd rather have:
-run.py
-      │
-      ▼
-Application
-      │
-      ▼
-MainWindow
-No unnecessary middle layer.
+- Clean Architecture
+- SOLID Principles
+- Modular Design
+- Object-Oriented Programming
+- Single Responsibility Principle
+- Scalable Codebase
 
-Much cleaner.
+---
 
-Final Architecture
+## Development Workflow
 
-run.py
-    │
-    ▼
-Application
-    │
-    ▼
-MainWindow
-    │
-    ▼
-Menus
-Toolbar
-StatusBar
+Every feature follows the same process.
 
-This is closer to how professional Qt applications are organized.
+1. Design
+2. Implement
+3. Test
+4. Commit
+5. Push
+
+---
+
+## Current Progress
+
+### Completed
+
+- Repository setup
+- Application bootstrap
+- Main window
+- Logging system
+- Project architecture
+
+### In Progress
+
+- Professional desktop interface
+
+### Planned
+
+- Image importing
+- Photogrammetry pipeline
+- AI reconstruction
+- 3D visualization
+- Export system
+
+---
+
+## License
+
+MIT License
+
+---
+
+## Author
+
+Developed by Mihir.
+
+Mentored during development with ChatGPT.
