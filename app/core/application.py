@@ -21,8 +21,8 @@ class Application:
 
         self.window = MainWindow()
 
-    def run(self) -> None:
-
+    def run(self) -> int:
+        """Start the Qt application."""
         self.window.show()
 
-        sys.exit(self.qt_app.exec())
+        return self.qt_app.exec()

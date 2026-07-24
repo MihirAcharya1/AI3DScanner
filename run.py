@@ -1,17 +1,20 @@
 """
 Application entry point.
-
-This file is intentionally minimal.
-It only starts the application.
 """
+
+import sys
 
 from app.core.application import Application
 
 
 def main() -> None:
     """Application launcher."""
+
     app = Application()
-    app.run()
+
+    exit_code = app.run()
+
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
