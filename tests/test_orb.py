@@ -3,7 +3,7 @@ from pathlib import Path
 import cv2
 
 from app.vision.image_loader import ImageLoader
-from app.vision.feature_detector import FeatureDetector
+from app.vision.detectors import FeatureDetector
 
 
 image_path = Path("examples/image1.jpeg")

@@ -50,6 +50,9 @@ class MenuManager:
         menu_bar.addMenu("&Project")
         menu_bar.addMenu("&Tools")
         menu_bar.addMenu("&Help")
+        reconstruction_menu = menu_bar.addMenu("Reconstruction")
+        start_action = reconstruction_menu.addAction("Start Reconstruction")
+        view_action = reconstruction_menu.addAction("View Point Cloud")
 
     def new_project(self) -> None:
         self.window.project_manager.new_project()

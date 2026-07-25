@@ -1,27 +1,15 @@
-"""
-ORB Feature Detector
-"""
-
 import cv2
-import numpy as np
 
 
-class FeatureDetector:
-    """ORB feature detector."""
+class ORBDetector:
 
-    def __init__(self, nfeatures: int = 5000):
+    def __init__(self, max_features=5000):
         self.detector = cv2.ORB_create(
-            nfeatures=nfeatures
+            nfeatures=max_features
         )
 
-    def detect(self, image: np.ndarray):
-        """
-        Detect keypoints and descriptors.
-        """
-
-        keypoints, descriptors = self.detector.detectAndCompute(
-            image,
+    def detect(self, gray_image):
+        return self.detector.detectAndCompute(
+            gray_image,
             None,
         )
-
-        return keypoints, descriptors
