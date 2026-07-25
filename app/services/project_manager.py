@@ -7,6 +7,8 @@ from pathlib import Path
 
 from app.models.project import AI3DProject
 from app.utils.json_utils import read_json, write_json
+from pathlib import Path
+from app.services.image_service import ImageService
 
 
 class ProjectManager:
@@ -34,3 +36,22 @@ class ProjectManager:
         data = read_json(path)
 
         self.project = AI3DProject(**data)
+
+    def import_images(self, paths: list[Path],) -> int:
+        """ 
+            Import images into the project.
+        """
+
+        imported = 0
+
+        for path in paths:
+
+            if ImageService.is_valid_image(path):
+
+                if path not in self.project.images:
+
+                    self.project.images.append(path)
+
+                    imported += 1
+
+        return imported

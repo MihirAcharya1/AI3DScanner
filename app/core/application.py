@@ -21,9 +21,11 @@ class Application:
 
         self.qt_app = QApplication(sys.argv)
 
+        self.project_manager = ProjectManager()
+
         self.window = MainWindow()
 
-        self.project_manager = ProjectManager()
+        self.window.project_manager = self.project_manager
 
     def run(self) -> int:
         """Start the Qt application."""

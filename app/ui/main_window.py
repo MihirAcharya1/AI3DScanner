@@ -18,7 +18,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("AI3DScanner")
 
-        self.resize(1600, 900)
+        self.resize(1024,600)
 
         self.menu_manager = MenuManager(self)
         self.toolbar_manager = ToolbarManager(self)

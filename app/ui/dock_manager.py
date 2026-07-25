@@ -12,6 +12,8 @@ from PySide6.QtWidgets import (
     QWidget,
     QMainWindow,
 )
+from app.ui.widgets.image_viewer import ImageViewer
+
 
 
 class DockManager:
@@ -33,6 +35,7 @@ class DockManager:
 
         self.project_dock = QDockWidget("Project Explorer", self.window)
         self.project_dock.setWidget(self.project_list)
+        self.project_list.itemClicked.connect(self.on_image_selected)
         self.window.addDockWidget(Qt.LeftDockWidgetArea, self.project_dock)
 
         self.properties_dock = QDockWidget("Properties", self.window)
@@ -43,4 +46,21 @@ class DockManager:
         self.console_dock.setWidget(self.console_output)
         self.window.addDockWidget(Qt.BottomDockWidgetArea, self.console_dock)
 
-        self.window.setCentralWidget(QWidget())
+
+        self.image_viewer = ImageViewer()
+
+        self.window.setCentralWidget(self.image_viewer)
+        
+    def on_image_selected(self, item):
+
+        for image in self.window.project_manager.project.images:
+
+            if image.name == item.text():
+
+                self.image_viewer.load_image(image)
+
+                self.window.statusbar_manager.show_message(
+                    f"Viewing: {image.name}"
+                )
+
+                break

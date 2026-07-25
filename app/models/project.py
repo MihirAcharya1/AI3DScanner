@@ -4,6 +4,7 @@ AI3D Project Model
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 
 
 @dataclass
@@ -16,7 +17,7 @@ class AI3DProject:
 
     version: str = "0.3.0"
 
-    images: list[str] = field(default_factory=list)
+    images: list[Path] = field(default_factory=list)
 
     point_cloud: str | None = None
 

@@ -18,6 +18,7 @@ def write_json(path: Path, data: dict) -> None:
             file,
             indent=4,
             ensure_ascii=False,
+            default=str,
         )
 
 
