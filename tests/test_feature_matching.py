@@ -1,3 +1,7 @@
+"""
+Test ORB Feature Matching on Multiple Images
+"""
+
 import sys
 from pathlib import Path
 
@@ -11,51 +15,102 @@ from app.vision.feature_detector import FeatureDetector
 from app.vision.feature_matcher import FeatureMatcher
 
 
-image1 = ImageLoader.load(Path("examples/chair/image1.png"))
-image2 = ImageLoader.load(Path("examples/chair/image2.png"))
-image3 = ImageLoader.load(Path("examples/chair/image3.png"))
-image4 = ImageLoader.load(Path("examples/chair/image4.png"))
-image5 = ImageLoader.load(Path("examples/chair/image5.png"))
-image6 = ImageLoader.load(Path("examples/chair/image6.png"))
+# -------------------------------------------------
+# Load all images from folder
+# -------------------------------------------------
 
-gray1 = ImageLoader.to_gray(image1)
-gray2 = ImageLoader.to_gray(image2)
-gray3 = ImageLoader.to_gray(image3)
-gray4 = ImageLoader.to_gray(image4)
-gray5 = ImageLoader.to_gray(image5)
-gray6 = ImageLoader.to_gray(image6)
+IMAGE_FOLDER = Path("examples/chair")
 
+# Supported image extensions
+EXTENSIONS = ("*.jpg", "*.jpeg", "*.png", "*.bmp")
+
+image_paths = []
+
+for ext in EXTENSIONS:
+    image_paths.extend(IMAGE_FOLDER.glob(ext))
+
+image_paths = sorted(image_paths)
+
+if len(image_paths) < 2:
+    raise RuntimeError("Need at least two images to perform feature matching.")
+
+print(f"Found {len(image_paths)} images.\n")
+
+
+# -------------------------------------------------
+# Load images
+# -------------------------------------------------
+
+images = [
+    ImageLoader.load(path)
+    for path in image_paths
+]
+
+gray_images = [
+    ImageLoader.to_gray(image)
+    for image in images
+]
+
+
+# -------------------------------------------------
+# Detect ORB Features
+# -------------------------------------------------
 
 detector = FeatureDetector()
 
-kp1, des1 = detector.detect(gray1)
-kp2, des2 = detector.detect(gray2)
-kp3, des3 = detector.detect(gray3)
-kp4, des4 = detector.detect(gray4)
-kp5, des5 = detector.detect(gray5)
-kp6, des6 = detector.detect(gray6)
+features = []
 
+for i, gray in enumerate(gray_images):
+
+    keypoints, descriptors = detector.detect(gray)
+
+    features.append((keypoints, descriptors))
+
+    print(
+        f"{image_paths[i].name:<20} "
+        f"Keypoints: {len(keypoints)}"
+    )
+
+
+print("\n------------------------------\n")
+
+
+# -------------------------------------------------
+# Match Consecutive Images
+# -------------------------------------------------
 
 matcher = FeatureMatcher()
 
-matches = matcher.match(des1, des2)
+for i in range(len(features) - 1):
 
-print(f"Image 1 Keypoints : {len(kp1)}")
-print(f"Image 2 Keypoints : {len(kp2)}")
-print(f"Matches           : {len(matches)}")
+    kp1, des1 = features[i]
+    kp2, des2 = features[i + 1]
 
-result = cv2.drawMatches(
-    image1,
-    kp1,
-    image2,
-    kp2,
-    matches[:100],
-    None,
-    flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS,
-)
+    matches = matcher.match(des1, des2)
 
-cv2.imshow("ORB Feature Matching", result)
+    print(
+        f"{image_paths[i].name}  <-->  {image_paths[i+1].name}"
+    )
 
-cv2.waitKey(0)
+    print(
+        f"Matches: {len(matches)}"
+    )
+
+    result = cv2.drawMatches(
+        images[i],
+        kp1,
+        images[i + 1],
+        kp2,
+        matches[:100],
+        None,
+        flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS,
+    )
+
+    cv2.imshow(
+        f"Matches {i+1}",
+        result,
+    )
+
+    cv2.waitKey(0)
 
 cv2.destroyAllWindows()
