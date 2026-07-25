@@ -8,6 +8,8 @@ from PySide6.QtWidgets import QApplication
 
 from app.core.logger import Logger
 from app.ui.main_window import MainWindow
+from app.services.project_manager import ProjectManager
+from pathlib import Path
 
 
 class Application:
@@ -20,6 +22,8 @@ class Application:
         self.qt_app = QApplication(sys.argv)
 
         self.window = MainWindow()
+
+        self.project_manager = ProjectManager()
 
     def run(self) -> int:
         """Start the Qt application."""

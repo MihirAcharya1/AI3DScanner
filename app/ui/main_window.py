@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
 
         self.resize(1600, 900)
 
-        MenuManager(self)
-        ToolbarManager(self)
-        StatusBarManager(self)
-        DockManager(self)
+        self.menu_manager = MenuManager(self)
+        self.toolbar_manager = ToolbarManager(self)
+        self.statusbar_manager = StatusBarManager(self)
+        self.dock_manager = DockManager(self)
