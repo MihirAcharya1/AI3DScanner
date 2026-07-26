@@ -21,6 +21,12 @@ reconstructor.detect_features()
 
 reconstructor.match_features()
 
+reconstructor.build_feature_graph()
+
+reconstructor.filter_graph()
+
+reconstructor.build_tracks()
+
 reconstructor.show_statistics()
 
 reconstructor.estimate_camera_poses()
@@ -30,6 +36,8 @@ reconstructor.triangulate_pairs()
 reconstructor.reconstruction_summary()
 
 reconstructor.optimize()
+
+reconstructor.run_bundle_adjustment()
 
 pcd = o3d.io.read_point_cloud(
     "outputs/chair_sparse.ply"
