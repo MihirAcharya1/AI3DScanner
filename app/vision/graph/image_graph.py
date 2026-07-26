@@ -10,5 +10,5 @@ class ImageGraph:
 
     def connect(self, index1, index2, matches):
 
-        self.nodes[index1].connections[index2] = matches
-        self.nodes[index2].connections[index1] = matches
+        self.nodes[index1].connections[index2] = list(matches)
+        self.nodes[index2].connections[index1] = list(matches)

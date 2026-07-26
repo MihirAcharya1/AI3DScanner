@@ -39,11 +39,17 @@ reconstructor.optimize()
 
 reconstructor.run_bundle_adjustment()
 
-pcd = o3d.io.read_point_cloud(
-    "outputs/chair_sparse.ply"
-)
+reconstructor.triangulate_tracks()
 
-SceneViewer.show(
-    pcd,
-    reconstructor.trajectory,
-)
+# pcd = o3d.io.read_point_cloud(
+#     "outputs/chair_sparse.ply"
+# )
+
+# SceneViewer.show(
+#     pcd,
+#     reconstructor.trajectory,
+# )
+
+reconstructor.compute_reprojection_errors()
+reconstructor.filter_sparse_points()
+reconstructor.dense_reconstruction()

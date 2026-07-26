@@ -7,15 +7,24 @@ import numpy as np
 
 
 class EpipolarGeometry:
-    """Geometry operations for photogrammetry."""
+    """
+    Geometry operations used by the
+    Structure-from-Motion pipeline.
+    """
 
-    def filter_matches(self, kp1, kp2, matches):
+    def filter_matches(
+        self,
+        kp1,
+        kp2,
+        matches,
+    ):
         """
-        Filter matches using RANSAC.
+        Remove outliers using Fundamental Matrix RANSAC.
 
-        Returns:
-            inlier_matches : list
-            mask : ndarray
+        Returns
+        -------
+        inlier_matches : list
+        mask : ndarray
         """
 
         if len(matches) < 8:
@@ -29,14 +38,18 @@ class EpipolarGeometry:
             [kp2[m.trainIdx].pt for m in matches]
         )
 
-        fundamental_matrix, mask = cv2.findFundamentalMat(
+        F, mask = cv2.findFundamentalMat(
             pts1,
             pts2,
             cv2.FM_RANSAC,
+            3.0,
+            0.99,
         )
 
-        if fundamental_matrix is None:
+        if F is None or mask is None:
             return [], None
+
+        mask = mask.ravel()
 
         inlier_matches = [
             matches[i]
@@ -46,7 +59,6 @@ class EpipolarGeometry:
 
         return inlier_matches, mask
 
-
     def find_essential_matrix(
         self,
         kp1,
@@ -54,6 +66,9 @@ class EpipolarGeometry:
         matches,
         camera_matrix,
     ):
+        """
+        Compute Essential Matrix.
+        """
 
         pts1 = np.float32(
             [kp1[m.queryIdx].pt for m in matches]
@@ -69,16 +84,15 @@ class EpipolarGeometry:
             camera_matrix,
             method=cv2.RANSAC,
             prob=0.999,
-            threshold=1.0,
+            threshold=2.0,
         )
 
-        if E is None:
+        if E is None or mask is None:
             raise RuntimeError(
                 "Essential Matrix estimation failed."
             )
 
-        return E, mask
-
+        return E, mask.ravel()
 
     def recover_camera_pose(
         self,
@@ -88,6 +102,10 @@ class EpipolarGeometry:
         matches,
         camera_matrix,
     ):
+        """
+        Recover camera pose from
+        Essential Matrix.
+        """
 
         pts1 = np.float32(
             [kp1[m.queryIdx].pt for m in matches]
@@ -97,14 +115,26 @@ class EpipolarGeometry:
             [kp2[m.trainIdx].pt for m in matches]
         )
 
+        # Normalize image points
+        pts1 = cv2.undistortPoints(
+            pts1.reshape(-1, 1, 2),
+            camera_matrix,
+            None,
+        )
+
+        pts2 = cv2.undistortPoints(
+            pts2.reshape(-1, 1, 2),
+            camera_matrix,
+            None,
+        )
+
         _, R, t, mask = cv2.recoverPose(
             E,
             pts1,
             pts2,
-            camera_matrix,
         )
 
-        return R, t, mask
+        return R, t, mask.ravel()
 
     def estimate_pose(
         self,
@@ -114,15 +144,19 @@ class EpipolarGeometry:
         camera_matrix,
     ):
         """
-        Estimate camera pose directly from feature matches.
+        Complete pose estimation pipeline.
 
-        Returns:
-            R : Rotation matrix
-            t : Translation vector
-            inlier_matches : list
+        Returns
+        -------
+        R
+        t
+        final_inlier_matches
         """
 
-        # Remove outliers first
+        if len(matches) < 8:
+            return None, None, []
+
+        # Fundamental Matrix RANSAC
         inlier_matches, _ = self.filter_matches(
             kp1,
             kp2,
@@ -132,7 +166,7 @@ class EpipolarGeometry:
         if len(inlier_matches) < 8:
             return None, None, []
 
-        # Essential matrix
+        # Essential Matrix
         E, _ = self.find_essential_matrix(
             kp1,
             kp2,
@@ -140,7 +174,7 @@ class EpipolarGeometry:
             camera_matrix,
         )
 
-        # Camera pose
+        # Recover pose
         R, t, pose_mask = self.recover_camera_pose(
             E,
             kp1,
@@ -156,7 +190,7 @@ class EpipolarGeometry:
         ]
 
         return R, t, final_inliers
-    
+
     def triangulate_points(
         self,
         kp1,
@@ -167,11 +201,11 @@ class EpipolarGeometry:
         camera_matrix,
     ):
         """
-        Triangulate 3D points from one image pair.
+        Triangulate 3D points.
         """
 
-        import numpy as np
-        import cv2
+        if len(matches) < 2:
+            return np.empty((0, 3))
 
         pts1 = np.float32(
             [kp1[m.queryIdx].pt for m in matches]
@@ -202,8 +236,8 @@ class EpipolarGeometry:
             pts2,
         )
 
-        points3d = (
-            points4d[:3] / points4d[3]
-        ).T
+        points4d /= points4d[3]
+
+        points3d = points4d[:3].T
 
         return points3d

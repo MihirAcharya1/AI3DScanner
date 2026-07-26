@@ -8,41 +8,49 @@ import numpy as np
 
 class ReprojectionError:
 
-    @staticmethod
     def compute(
-        points3d,
-        image_points,
+        self,
+        point3d,
+        point2d,
         camera_matrix,
         rotation,
         translation,
     ):
         """
-        Compute mean reprojection error.
-        """
+        Compute reprojection error for a single 3D point.
 
-        if len(points3d) == 0:
-            return 0.0
+        Parameters
+        ----------
+        point3d : ndarray (3,)
+        point2d : tuple(x, y)
+        camera_matrix : ndarray (3x3)
+        rotation : ndarray (3x3)
+        translation : ndarray (3x1)
+
+        Returns
+        -------
+        float
+        """
 
         rvec, _ = cv2.Rodrigues(rotation)
 
         projected, _ = cv2.projectPoints(
-            np.asarray(points3d, dtype=np.float32),
+            point3d.reshape(1, 3),
             rvec,
             translation,
             camera_matrix,
             None,
         )
 
-        projected = projected.reshape(-1, 2)
+        projected = projected.reshape(2)
 
-        image_points = np.asarray(
-            image_points,
-            dtype=np.float32,
+        point2d = np.array(
+            point2d,
+            dtype=np.float64,
         )
 
         error = np.linalg.norm(
-            projected - image_points,
-            axis=1,
+            projected - point2d
         )
 
-        return float(np.mean(error))
+        return float(error)
