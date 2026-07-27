@@ -23,14 +23,14 @@ class MultiViewTriangulator:
 
         for track in tracks:
 
-            if track.size() < 2:
+            if len(track) < 2:
                 continue
 
             obs1 = track.observations[0]
             obs2 = track.observations[1]
 
-            image1 = obs1["image"]
-            image2 = obs2["image"]
+            image1 = obs1.image_index
+            image2 = obs2.image_index
 
             if (
                 image1 >= len(rotations)
@@ -38,27 +38,33 @@ class MultiViewTriangulator:
             ):
                 continue
 
+            R1 = rotations[image1]
+            t1 = translations[image1]
+
+            R2 = rotations[image2]
+            t2 = translations[image2]
+
             P1 = camera_matrix @ np.hstack(
                 (
-                    rotations[image1],
-                    translations[image1],
+                    R1,
+                    t1,
                 )
             )
 
             P2 = camera_matrix @ np.hstack(
                 (
-                    rotations[image2],
-                    translations[image2],
+                    R2,
+                    t2,
                 )
             )
 
-            pt1 = np.array(
-                obs1["point"],
+            pt1 = np.asarray(
+                obs1.point2d,
                 dtype=np.float64,
             ).reshape(2, 1)
 
-            pt2 = np.array(
-                obs2["point"],
+            pt2 = np.asarray(
+                obs2.point2d,
                 dtype=np.float64,
             ).reshape(2, 1)
 
@@ -73,6 +79,12 @@ class MultiViewTriangulator:
                 point4d[:3]
                 / point4d[3]
             ).flatten()
+
+            if (
+                np.isnan(point3d).any()
+                or np.isinf(point3d).any()
+            ):
+                continue
 
             track.set_point3d(point3d)
 

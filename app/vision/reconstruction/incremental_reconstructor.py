@@ -25,6 +25,7 @@ from app.vision.optimization.reprojection_error import (
 from app.vision.optimization.point_filter import PointFilter
 from app.vision.dense.dense_reconstructor import DenseReconstructor
 from app.vision.models.image_pair import ImagePair
+from app.vision.optimization.reprojection import ReprojectionError
 
 
 class IncrementalReconstructor:
@@ -53,6 +54,7 @@ class IncrementalReconstructor:
         self.graph_filter = GraphFilter(min_matches=10)
 
         self.geometry = EpipolarGeometry()
+        self.reprojection = ReprojectionError()
 
         self.images = []
         self.gray_images = []
@@ -343,6 +345,8 @@ class IncrementalReconstructor:
         self.bundle_adjuster.optimize(
             camera_poses,
             self.cloud.to_numpy(),
+            self.track_builder.tracks,
+            self.get_camera_matrix(),
         )
 
     def build_feature_graph(self):
@@ -391,6 +395,8 @@ class IncrementalReconstructor:
             self.bundle_adjuster.optimize(
                 camera_poses,
                 self.cloud.to_numpy(),
+                self.track_builder.tracks,
+                self.get_camera_matrix(),
             )
         )
 
@@ -429,42 +435,55 @@ class IncrementalReconstructor:
             if point3d is None:
                 continue
 
-            for obs in track.observations:
+            for observation in track.observations:
 
-                image = obs["image"]
+                image_index = observation.image_index
 
-                if image >= len(self.rotations):
+                if image_index >= len(self.rotations):
                     continue
 
-                error = self.reprojection.compute(
+                R = self.rotations[image_index]
+                t = self.translations[image_index]
+
+                error = self.reprojection.residual_norm(
                     point3d,
-                    obs["point"],
+                    observation.point2d,
+                    R,
+                    t,
                     camera_matrix,
-                    self.rotations[image],
-                    self.translations[image],
-                )
+                )   
+
+                track.error = error
 
                 self.reprojection_errors.append(error)
 
         print()
         print("========== REPROJECTION ==========")
 
-        if self.reprojection_errors:
+        if len(self.reprojection_errors) == 0:
 
-            print(
-                f"Observations : {len(self.reprojection_errors)}"
-            )
+            print("No observations.")
+            return
 
-            print(
-                f"Average Error : "
-                f"{sum(self.reprojection_errors)/len(self.reprojection_errors):.3f} px"
-            )
+        print(
+            f"Observations : {len(self.reprojection_errors)}"
+        )
 
-            print(
-                f"Maximum Error : "
-                f"{max(self.reprojection_errors):.3f} px"
-            )
-            
+        print(
+            f"Average Error : "
+            f"{np.mean(self.reprojection_errors):.3f} px"
+        )
+
+        print(
+            f"Median Error  : "
+            f"{np.median(self.reprojection_errors):.3f} px"
+        )
+
+        print(
+            f"Maximum Error : "
+            f"{np.max(self.reprojection_errors):.3f} px"
+        )
+         
     def filter_sparse_points(self):
 
         self.track_builder.tracks = (

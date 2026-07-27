@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 
 class CameraModel:
@@ -23,3 +24,31 @@ class CameraModel:
             ],
             dtype=np.float64,
         )
+    
+    def project(
+        self,
+        point3d,
+        R,
+        t,
+        K,
+    ):
+        """
+        Project one 3D point into the image.
+        """
+
+        point3d = np.asarray(
+            point3d,
+            dtype=np.float64,
+        ).reshape(1, 3)
+
+        rvec, _ = cv2.Rodrigues(R)
+
+        image_point, _ = cv2.projectPoints(
+            point3d,
+            rvec,
+            t,
+            K,
+            self.distortion,
+        )
+
+        return image_point.reshape(2)
